@@ -27,7 +27,7 @@ const sections = document.querySelectorAll('section[id]')
 const scrollActive = () =>{
     const scrollDown = window.scrollY
 
-  sections.forEach(current =>{
+    sections.forEach(current =>{
         const sectionHeight = current.offsetHeight,
               sectionTop = current.offsetTop - 58,
               sectionId = current.getAttribute('id'),
@@ -55,3 +55,70 @@ sr.reveal('.home__data, .about__img, .skills__subtitle, .skills__text',{});
 sr.reveal('.home__img, .about__subtitle, .about__text, .skills__img',{delay: 400}); 
 sr.reveal('.home__social-icon',{ interval: 200}); 
 sr.reveal('.skills__data, .work__img, .contact__input',{interval: 200}); 
+
+/*===== THEME TOGGLE =====*/
+const themeToggle = document.getElementById('theme-toggle');
+const body = document.body;
+
+// Check for saved theme preference in localStorage
+const currentTheme = localStorage.getItem('theme');
+if (currentTheme) {
+    body.setAttribute('data-theme', currentTheme);
+    if (currentTheme === 'light') {
+        themeToggle.querySelector('i').classList.replace('bx-sun', 'bx-moon');
+    }
+} else {
+    // Default to dark theme
+    body.setAttribute('data-theme', 'dark');
+    localStorage.setItem('theme', 'dark');
+}
+
+// Add event listener for theme toggle
+themeToggle.addEventListener('click', () => {
+    if (body.getAttribute('data-theme') === 'dark') {
+        body.setAttribute('data-theme', 'light');
+        themeToggle.querySelector('i').classList.replace('bx-sun', 'bx-moon');
+        localStorage.setItem('theme', 'light');
+    } else {
+        body.setAttribute('data-theme', 'dark');
+        themeToggle.querySelector('i').classList.replace('bx-moon', 'bx-sun');
+        localStorage.setItem('theme', 'dark');
+    }
+});
+
+/*===== CONTACT FORM SUBMISSION =====*/
+(function() {
+    // Initialize EmailJS with your Public Key
+    emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your EmailJS Public Key
+
+    const form = document.getElementById('contact-form');
+    const submitButton = form.querySelector('input[type="submit"]');
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Basic email validation
+        const emailInput = form.querySelector('input[name="email"]');
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
+            alert('Please enter a valid email address');
+            return;
+        }
+
+        // Disable button and show loading state
+        submitButton.disabled = true;
+        submitButton.value = 'Sending...';
+
+        // Send form data via EmailJS
+        emailjs.sendForm('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', this)
+            .then(() => {
+                alert('Message sent successfully!');
+                form.reset(); // Clear form
+                submitButton.disabled = false;
+                submitButton.value = 'Send';
+            }, (error) => {
+                alert('Failed to send message: ' + JSON.stringify(error));
+                submitButton.disabled = false;
+                submitButton.value = 'Send';
+            });
+    });
+})();
